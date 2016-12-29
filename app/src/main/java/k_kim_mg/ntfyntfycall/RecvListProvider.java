@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class RecvListProvider extends ContentProvider {
-    public static final String PROVIDER_NAME = "kkimmg.ntfyntfycall.dbprovider";
+    public static final String PROVIDER_NAME = "kkimmg.ntfyntfycall.recvprovider";
     private static final String DB_NAME = "shit.db";
     public static final String TABLE_NAME = "RECVLIST";
     private static final int DB_VERSION = 1;
@@ -29,9 +29,6 @@ public class RecvListProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL( //
                     "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "( " + //
-                            "_ID INTEGER PRIMARY KEY AUTOINCREMENT," + //
-                            "_DATETIME NUMERIC," + //
-                            "_TYPE INTEGER DEFAULT 0," + //
                             "DEVICENAME TEXT);");
         }
         @Override
@@ -65,8 +62,8 @@ public class RecvListProvider extends ContentProvider {
         int ret = 0;
         switch (uriMatcher.match(uri)) {
             case TYPE_DEVICE:
-                String id = uri.getPathSegments().get(1);
-                whereClause = "_ID = " + id;
+                String _DEVICENAME = uri.getPathSegments().get(1);
+                whereClause = "DEVICENAME = " + _DEVICENAME;
                 ret = db.delete(TABLE_NAME, whereClause, whereArgs);
                 break;
             case TYPE_LIST:
@@ -81,10 +78,10 @@ public class RecvListProvider extends ContentProvider {
         String ret = null;
         switch (uriMatcher.match(uri)) {
             case TYPE_LIST:
-                ret = "vnd.android.cursor.dir/events";
+                ret = "vnd.android.cursor.dir/recvs";
                 break;
             case TYPE_DEVICE:
-                ret = "vnd.android.cursor.item/events";
+                ret = "vnd.android.cursor.item/recvs";
                 break;
         }
         return ret;
@@ -106,11 +103,11 @@ public class RecvListProvider extends ContentProvider {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
         builder.setTables(TABLE_NAME);
         if (uriMatcher.match(uri) == TYPE_DEVICE) {
-            String id = uri.getPathSegments().get(1);
-            builder.appendWhere("_ID = " + id);
+            String _DEVICENAME = uri.getPathSegments().get(1);
+            builder.appendWhere("DEVICENAME = " + _DEVICENAME);
         }
         if (sortOrder == null || sortOrder == "") {
-            sortOrder = "_ID";
+            sortOrder = "DEVICENAME";
         }
         Cursor ret = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         ret.setNotificationUri(getContext().getContentResolver(), uri);
@@ -121,8 +118,8 @@ public class RecvListProvider extends ContentProvider {
         int ret = 0;
         switch (uriMatcher.match(uri)) {
             case TYPE_DEVICE:
-                String id = uri.getPathSegments().get(1);
-                selection = "_ID = " + id;
+                String _DEVICENAME = uri.getPathSegments().get(1);
+                selection = "DEVICENAME = " + _DEVICENAME;
                 ret = db.update(TABLE_NAME, values, selection, selectionArgs);
                 break;
             case TYPE_LIST:

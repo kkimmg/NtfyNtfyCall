@@ -12,14 +12,14 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class KeyValueProvider extends ContentProvider {
-    public static final String PROVIDER_NAME = "kkimmg.ntfyntfycall.dbprovider";
+    public static final String PROVIDER_NAME = "kkimmg.ntfyntfycall.keyprovider";
     private static final String DB_NAME = "shit.db";
     public static final String TABLE_NAME = "KEYVALUE";
     private static final int DB_VERSION = 1;
     public static final Uri CONTENT_EVENTS = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
     private SQLiteDatabase db;
     private static final int TYPE_LIST = 0;
-    private static final int TYPE_DEVICE = 1;
+    private static final int TYPE_KEY = 1;
     private static final UriMatcher uriMatcher;
     private static final class InnerHelper extends SQLiteOpenHelper {
         public InnerHelper(Context context) {
@@ -42,7 +42,7 @@ public class KeyValueProvider extends ContentProvider {
     }
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(PROVIDER_NAME, TABLE_NAME + "/#", TYPE_DEVICE);
+        uriMatcher.addURI(PROVIDER_NAME, TABLE_NAME + "/#", TYPE_KEY);
         uriMatcher.addURI(PROVIDER_NAME, TABLE_NAME, TYPE_LIST);
     }
     public KeyValueProvider() {
@@ -62,9 +62,9 @@ public class KeyValueProvider extends ContentProvider {
     public int delete(Uri uri, String whereClause, String[] whereArgs) {
         int ret = 0;
         switch (uriMatcher.match(uri)) {
-            case TYPE_DEVICE:
-                String id = uri.getPathSegments().get(1);
-                whereClause = "_ID = " + id;
+            case TYPE_KEY:
+                String key = uri.getPathSegments().get(1);
+                whereClause = "KEY = " + key;
                 ret = db.delete(TABLE_NAME, whereClause, whereArgs);
                 break;
             case TYPE_LIST:
@@ -79,10 +79,10 @@ public class KeyValueProvider extends ContentProvider {
         String ret = null;
         switch (uriMatcher.match(uri)) {
             case TYPE_LIST:
-                ret = "vnd.android.cursor.dir/events";
+                ret = "vnd.android.cursor.dir/keys";
                 break;
-            case TYPE_DEVICE:
-                ret = "vnd.android.cursor.item/events";
+            case TYPE_KEY:
+                ret = "vnd.android.cursor.item/keys";
                 break;
         }
         return ret;
@@ -103,12 +103,12 @@ public class KeyValueProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
         builder.setTables(TABLE_NAME);
-        if (uriMatcher.match(uri) == TYPE_DEVICE) {
+        if (uriMatcher.match(uri) == TYPE_KEY) {
             String key = uri.getPathSegments().get(1);
             builder.appendWhere("KEY = " + key);
         }
         if (sortOrder == null || sortOrder == "") {
-            sortOrder = "_ID";
+            sortOrder = "KEY";
         }
         Cursor ret = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         ret.setNotificationUri(getContext().getContentResolver(), uri);
@@ -118,7 +118,7 @@ public class KeyValueProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         int ret = 0;
         switch (uriMatcher.match(uri)) {
-            case TYPE_DEVICE:
+            case TYPE_KEY:
                 String key = uri.getPathSegments().get(1);
                 selection = "KEY = " + key;
                 ret = db.update(TABLE_NAME, values, selection, selectionArgs);
