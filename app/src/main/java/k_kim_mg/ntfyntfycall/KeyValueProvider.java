@@ -16,7 +16,7 @@ public class KeyValueProvider extends ContentProvider {
     private static final String DB_NAME = "shit.db";
     public static final String TABLE_NAME = "KEYVALUE";
     private static final int DB_VERSION = 1;
-    public static final Uri CONTENT_EVENTS = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
+    public static final Uri CONTENT_NAME = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
     private SQLiteDatabase db;
     private static final int TYPE_LIST = 0;
     private static final int TYPE_KEY = 1;
@@ -79,10 +79,10 @@ public class KeyValueProvider extends ContentProvider {
         String ret = null;
         switch (uriMatcher.match(uri)) {
             case TYPE_LIST:
-                ret = "vnd.android.cursor.dir/keys";
+                ret = "vnd.kkimmg.cursor.dir/keys";
                 break;
             case TYPE_KEY:
-                ret = "vnd.android.cursor.item/keys";
+                ret = "vnd.kkimmg.cursor.item/keys";
                 break;
         }
         return ret;
@@ -93,7 +93,7 @@ public class KeyValueProvider extends ContentProvider {
         Uri ret = null;
         long row = db.insert(TABLE_NAME, null, values);
         if (row > 0) {
-            ret = ContentUris.withAppendedId(CONTENT_EVENTS, row);
+            ret = ContentUris.withAppendedId(CONTENT_NAME, row);
             getContext().getContentResolver().notifyChange(ret, null);
         }
         return ret;

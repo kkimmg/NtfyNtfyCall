@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="k_kim_mg.ntfyntfycall">
 
+    <uses-sdk android:minSdkVersion="8" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,7 +31,26 @@
             android:name=".SendListProvider"
             android:authorities="SendListProvider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
+        <provider
+            android:name=".RecvListProvider"
+            android:authorities="RecvListProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".PhoneReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".NotifyAccepter"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

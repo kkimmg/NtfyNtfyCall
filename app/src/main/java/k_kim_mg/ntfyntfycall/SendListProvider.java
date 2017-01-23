@@ -16,7 +16,7 @@ public class SendListProvider extends ContentProvider {
     private static final String DB_NAME = "shit.db";
     public static final String TABLE_NAME = "SENDLIST";
     private static final int DB_VERSION = 1;
-    public static final Uri CONTENT_EVENTS = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
+    public static final Uri CONTENT_NAME = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
     private SQLiteDatabase db;
     private static final int TYPE_LIST = 0;
     private static final int TYPE_DEVICE = 1;
@@ -29,6 +29,7 @@ public class SendListProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL( //
                     "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "( " + //
+                            "DEVICEADDRESS TEXT," +
                             "DEVICENAME TEXT);");
         }
         @Override
@@ -62,8 +63,8 @@ public class SendListProvider extends ContentProvider {
         int ret = 0;
         switch (uriMatcher.match(uri)) {
             case TYPE_DEVICE:
-                String _DEVICENAME = uri.getPathSegments().get(1);
-                whereClause = "DEVICENAME = " + _DEVICENAME;
+                String _DEVICEADDRESS = uri.getPathSegments().get(1);
+                whereClause = "DEVICEADDRESS = " + _DEVICEADDRESS;
                 ret = db.delete(TABLE_NAME, whereClause, whereArgs);
                 break;
             case TYPE_LIST:
@@ -78,10 +79,10 @@ public class SendListProvider extends ContentProvider {
         String ret = null;
         switch (uriMatcher.match(uri)) {
             case TYPE_LIST:
-                ret = "vnd.android.cursor.dir/sends";
+                ret = "vnd.kkimmg.cursor.dir/sends";
                 break;
             case TYPE_DEVICE:
-                ret = "vnd.android.cursor.item/sends";
+                ret = "vnd.kkimmg.cursor.item/sends";
                 break;
         }
         return ret;
@@ -92,7 +93,7 @@ public class SendListProvider extends ContentProvider {
         Uri ret = null;
         long row = db.insert(TABLE_NAME, null, values);
         if (row > 0) {
-            ret = ContentUris.withAppendedId(CONTENT_EVENTS, row);
+            ret = ContentUris.withAppendedId(CONTENT_NAME, row);
             getContext().getContentResolver().notifyChange(ret, null);
         }
         return ret;
@@ -103,11 +104,11 @@ public class SendListProvider extends ContentProvider {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
         builder.setTables(TABLE_NAME);
         if (uriMatcher.match(uri) == TYPE_DEVICE) {
-            String _DEVICENAME = uri.getPathSegments().get(1);
-            builder.appendWhere("DEVICENAME = " + _DEVICENAME);
+            String _DEVICEADDRESS = uri.getPathSegments().get(1);
+            builder.appendWhere("DEVICEADDRESS = " + _DEVICEADDRESS);
         }
         if (sortOrder == null || sortOrder == "") {
-            sortOrder = "DEVICENAME";
+            sortOrder = "DEVICEADDRESS";
         }
         Cursor ret = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         ret.setNotificationUri(getContext().getContentResolver(), uri);
@@ -119,7 +120,7 @@ public class SendListProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case TYPE_DEVICE:
                 String _DEVICENAME = uri.getPathSegments().get(1);
-                selection = "DEVICENAME = " + _DEVICENAME;
+                selection = "DEVICEADDRESS = " + _DEVICENAME;
                 ret = db.update(TABLE_NAME, values, selection, selectionArgs);
                 break;
             case TYPE_LIST:
