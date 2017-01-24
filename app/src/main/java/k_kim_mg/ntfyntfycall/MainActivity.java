@@ -27,6 +27,7 @@ import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,32 +78,33 @@ public class MainActivity extends AppCompatActivity {
         // Bluetooth
         BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
         if (bt == null) {
-            showAlert("Exit", "Bluetooth is not suppoted.", "OK");
-            finish();
-        }
-        if (!bt.isEnabled()) {
-            showAlert("Exit", "Bluetooth is not enabled.", "OK");
-            finish();
-        }
-        Set<BluetoothDevice> deviceSet = bt.getBondedDevices();
-        int i = 0;
-        for (BluetoothDevice device : deviceSet) {
-            notifyList.add(device);
-            notifyAdapter.add(device.getName());
-            Uri uri1 = Uri.parse("content://" + SendListProvider.PROVIDER_NAME + "/" + SendListProvider.TABLE_NAME + "/" + device.getAddress());
-            Cursor cursor1 = getContentResolver().query(uri1, null, null, null, null);
-            if (cursor1.moveToNext()) {
-                notifySelect.add(i);
+            Toast.makeText(this, "Bluetooth is not suppoted.", Toast.LENGTH_LONG).show();
+        } else {
+            if (!bt.isEnabled()) {
+                Toast.makeText(this, "Bluetooth is not enabled.", Toast.LENGTH_LONG).show();
+                finish();
+                return;
             }
-            acceptList.add(device);
-            acceptAdapter.add(device.getName());
-            Uri uri2 = Uri.parse("content://" + SendListProvider.PROVIDER_NAME + "/" + SendListProvider.TABLE_NAME + "/" + device.getAddress());
-            Cursor cursor2 = getContentResolver().query(uri1, null, null, null, null);
-            if (cursor1.moveToNext()) {
-                acceptSelect.add(i);
-            }
+            Set<BluetoothDevice> deviceSet = bt.getBondedDevices();
+            int i = 0;
+            for (BluetoothDevice device : deviceSet) {
+                notifyList.add(device);
+                notifyAdapter.add(device.getName());
+                Uri uri1 = Uri.parse("content://" + SendListProvider.PROVIDER_NAME + "/" + SendListProvider.TABLE_NAME + "/" + device.getAddress());
+                Cursor cursor1 = getContentResolver().query(uri1, null, null, null, null);
+                if (cursor1.moveToNext()) {
+                    notifySelect.add(i);
+                }
+                acceptList.add(device);
+                acceptAdapter.add(device.getName());
+                Uri uri2 = Uri.parse("content://" + SendListProvider.PROVIDER_NAME + "/" + SendListProvider.TABLE_NAME + "/" + device.getAddress());
+                Cursor cursor2 = getContentResolver().query(uri1, null, null, null, null);
+                if (cursor1.moveToNext()) {
+                    acceptSelect.add(i);
+                }
 
-            i++;
+                i++;
+            }
         }
 
         // Components
