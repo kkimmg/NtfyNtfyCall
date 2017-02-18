@@ -12,10 +12,10 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class SendListProvider extends ContentProvider {
-    public static final String PROVIDER_NAME = "kkimmg.ntfyntfycall.sendprovider";
-    private static final String DB_NAME = "shit.db";
+    public static final String PROVIDER_NAME = "k_kim_mg.ntfyntfycall.SendListProvider";
+    private static final String DB_NAME = "send.db";
     public static final String TABLE_NAME = "SENDLIST";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     public static final Uri CONTENT_NAME = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
     private SQLiteDatabase db;
     private static final int TYPE_LIST = 0;
@@ -79,10 +79,10 @@ public class SendListProvider extends ContentProvider {
         String ret = null;
         switch (uriMatcher.match(uri)) {
             case TYPE_LIST:
-                ret = "vnd.kkimmg.cursor.dir/sends";
+                ret = "vnd.android.cursor.dir/sends";
                 break;
             case TYPE_DEVICE:
-                ret = "vnd.kkimmg.cursor.item/sends";
+                ret = "vnd.android.cursor.item/sends";
                 break;
         }
         return ret;
@@ -119,8 +119,8 @@ public class SendListProvider extends ContentProvider {
         int ret = 0;
         switch (uriMatcher.match(uri)) {
             case TYPE_DEVICE:
-                String _DEVICENAME = uri.getPathSegments().get(1);
-                selection = "DEVICEADDRESS = " + _DEVICENAME;
+                String _DEVICEADDRESS = uri.getPathSegments().get(1);
+                selection = "DEVICEADDRESS = " + _DEVICEADDRESS;
                 ret = db.update(TABLE_NAME, values, selection, selectionArgs);
                 break;
             case TYPE_LIST:

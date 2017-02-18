@@ -6,8 +6,8 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -29,12 +29,12 @@
 
         <provider
             android:name=".SendListProvider"
-            android:authorities="SendListProvider"
+            android:authorities="k_kim_mg.ntfyntfycall.SendListProvider"
             android:enabled="true"
             android:exported="true" />
         <provider
             android:name=".RecvListProvider"
-            android:authorities="RecvListProvider"
+            android:authorities="k_kim_mg.ntfyntfycall.RecvListProvider"
             android:enabled="true"
             android:exported="true" />
 

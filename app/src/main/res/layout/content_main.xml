@@ -14,6 +14,7 @@
     tools:showIn="@layout/activity_main">
 
     <TabHost
+        android:id="@android:id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
@@ -50,7 +51,7 @@
                         android:layout_height="match_parent">
 
                         <Button
-                            android:text="Button"
+                            android:text="Reflect"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/btnNotify" />
@@ -81,7 +82,7 @@
                         android:layout_height="match_parent">
 
                         <Button
-                            android:text="Button"
+                            android:text="Reflect"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/btnAccept" />

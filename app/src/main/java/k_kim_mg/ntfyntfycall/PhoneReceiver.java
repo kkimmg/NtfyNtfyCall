@@ -37,7 +37,7 @@ public class PhoneReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ctx = context;
-
+        Toast.makeText(ctx, "ON RECIEVE", Toast.LENGTH_LONG).show();
         try {
             //TelephonyManagerの生成
             TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -57,30 +57,34 @@ public class PhoneReceiver extends BroadcastReceiver {
     private class MyPhoneStateListener extends PhoneStateListener {
         @Override
         public void onCallStateChanged(int state, String callNumber) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ctx);
-            boolean send = sp.getBoolean("CHKNOTIFY", false);
-            if (!send) {
-                return;
+            try {
+                //Log.d("PhoneState Changed", ":" + state + ":" + callNumber);
+                String message = "";
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:      //待ち受け（終了時）
+                        Toast.makeText(ctx, "CALL_STATE_IDLE", Toast.LENGTH_LONG).show();
+                        message = "IDLE.";
+                        break;
+                    case TelephonyManager.CALL_STATE_RINGING:   //着信
+                        Toast.makeText(ctx, "CALL_STATE_RINGING: " + callNumber, Toast.LENGTH_LONG).show();
+                        message = "RINGING.(" + callNumber + ")";
+                        break;
+                    case TelephonyManager.CALL_STATE_OFFHOOK:   //通話
+                        Toast.makeText(ctx, "CALL_STATE_OFFHOOK", Toast.LENGTH_LONG).show();
+                        message = "OFFHOOK.";
+                        break;
+                }
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ctx);
+                boolean send = sp.getBoolean("CHKNOTIFY", false);
+                if (!send) {
+                    return;
+                }
+                BluetoothLoop lp = new BluetoothLoop();
+                lp.setMessage(message);
+                lp.start();
+            } catch (Exception ex) {
+                Toast.makeText(ctx, ex.getMessage(), Toast.LENGTH_LONG).show();
             }
-            Log.d("PhoneState Changed", ":" + state + ":" + callNumber);
-            String message = "";
-            switch(state){
-                case TelephonyManager.CALL_STATE_IDLE:      //待ち受け（終了時）
-                    Toast.makeText(ctx, "CALL_STATE_IDLE", Toast.LENGTH_LONG).show();
-                    message = "IDLE.";
-                    break;
-                case TelephonyManager.CALL_STATE_RINGING:   //着信
-                    Toast.makeText(ctx, "CALL_STATE_RINGING: " + callNumber, Toast.LENGTH_LONG).show();
-                    message = "RINGING.(" + callNumber + ")";
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:   //通話
-                    Toast.makeText(ctx, "CALL_STATE_OFFHOOK", Toast.LENGTH_LONG).show();
-                    message = "OFFHOOK.";
-                    break;
-            }
-            BluetoothLoop lp = new BluetoothLoop();
-            lp.setMessage(message);
-            lp.start();
         }
     }
 
@@ -106,30 +110,35 @@ public class PhoneReceiver extends BroadcastReceiver {
 
         @Override
         public void run () {
-            BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
             try {
-                bt.cancelDiscovery();
-            } catch (Exception e) {
-                Log.d(e.getClass().getCanonicalName(), e.getMessage());
-            }
-            Uri uri = Uri.parse("content://" + SendListProvider.PROVIDER_NAME + "/" + SendListProvider.TABLE_NAME);
-            Cursor cursor = ctx.getContentResolver().query(uri, null, null, null, null);
-            while (cursor.moveToNext()) {
-                String address = cursor.getString(cursor.getColumnIndex("DEVICEADDRESS"));
+                BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
                 try {
-                    BluetoothDevice device = bt.getRemoteDevice(address);
-                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID_SSP);
-                    socket.connect();
-                    OutputStream os = socket.getOutputStream();
-                    os.write(getMessage().getBytes());
-                    os.flush();
-                    os.close();
-                    socket.close();
-                } catch (IllegalArgumentException e) {
-                    Log.d(e.getClass().getCanonicalName(), e.getMessage());
-                } catch (IOException e) {
-                    Log.d(e.getClass().getCanonicalName(), e.getMessage());
+                    bt.cancelDiscovery();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                Uri uri = Uri.parse("content://" + SendListProvider.PROVIDER_NAME + "/" + SendListProvider.TABLE_NAME);
+                Cursor cursor = ctx.getContentResolver().query(uri, null, null, null, null);
+                while (cursor.moveToNext()) {
+                    String address = cursor.getString(cursor.getColumnIndex("DEVICEADDRESS"));
+                    try {
+                        System.err.println("ADDRESS=" + address);
+                        BluetoothDevice device = bt.getRemoteDevice(address);
+                        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID_SSP);
+                        socket.connect();
+                        OutputStream os = socket.getOutputStream();
+                        os.write(getMessage().getBytes());
+                        os.flush();
+                        os.close();
+                        socket.close();
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }

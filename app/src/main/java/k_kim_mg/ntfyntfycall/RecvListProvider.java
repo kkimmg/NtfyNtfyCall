@@ -12,10 +12,10 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class RecvListProvider extends ContentProvider {
-    public static final String PROVIDER_NAME = "kkimmg.ntfyntfycall.recvprovider";
-    private static final String DB_NAME = "shit.db";
+    public static final String PROVIDER_NAME = "k_kim_mg.ntfyntfycall.SendListProvider";
+    private static final String DB_NAME = "recv.db";
     public static final String TABLE_NAME = "RECVLIST";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     public static final Uri CONTENT_NAME = Uri.parse("content://" + PROVIDER_NAME + "/" + TABLE_NAME);
     private SQLiteDatabase db;
     private static final int TYPE_LIST = 0;
@@ -79,10 +79,10 @@ public class RecvListProvider extends ContentProvider {
         String ret = null;
         switch (uriMatcher.match(uri)) {
             case TYPE_LIST:
-                ret = "vnd.kkimmg.cursor.dir/recvs";
+                ret = "vnd.android.cursor.dir/recvs";
                 break;
             case TYPE_DEVICE:
-                ret = "vnd.kkimmg.cursor.item/recvs";
+                ret = "vnd.android.cursor.item/recvs";
                 break;
         }
         return ret;
@@ -101,16 +101,18 @@ public class RecvListProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-        builder.setTables(TABLE_NAME);
-        if (uriMatcher.match(uri) == TYPE_DEVICE) {
-            String _DEVICEADDRESS = uri.getPathSegments().get(1);
-            builder.appendWhere("DEVICEADDRESS = " + _DEVICEADDRESS);
+        Cursor ret = null;
+        int type = uriMatcher.match(uri);
+        switch (type) {
+            case TYPE_LIST:
+                ret = db.query(TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case TYPE_DEVICE:
+                ret = db.query(TABLE_NAME, projection, "DEVICEADDRESS = ?", new String[]{uri.getLastPathSegment()}, null, null, sortOrder);
+                break;
+            default:
+                break;
         }
-        if (sortOrder == null || sortOrder == "") {
-            sortOrder = "DEVICEADDRESS";
-        }
-        Cursor ret = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         ret.setNotificationUri(getContext().getContentResolver(), uri);
         return ret;
     }

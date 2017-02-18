@@ -32,14 +32,19 @@ public class NotifyAccepter extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        System.out.println("startservice3");
         sp = PreferenceManager.getDefaultSharedPreferences(NotifyAccepter.this);
         boolean cont = sp.getBoolean("CHKACCEPT", false);
         int ret = super.onStartCommand(intent, flags, startId);
         if (cont) {
+            System.out.println("startservice4");
             NotifyAcceptThread nath = new NotifyAcceptThread();
             nath.start();
+            System.out.println("startservice5");
         } else {
+            System.out.println("startservice6");
             stopSelf();
+            System.out.println("startservice7");
         }
         return ret;
     }
@@ -59,9 +64,12 @@ public class NotifyAccepter extends Service {
         // The local server socket
         private BluetoothServerSocket sock;
         public NotifyAcceptThread () {
+            System.out.println("startservice8");
             try {
                 bt = BluetoothAdapter.getDefaultAdapter();
+                System.out.println("startservice9");
                 sock = bt.listenUsingRfcommWithServiceRecord(SERVICE, PhoneReceiver.UUID_SSP);
+                System.out.println("startservice10");
             } catch (IOException e) {
                 Log.e(SERVICE, e.getMessage(), e);
             }
@@ -71,16 +79,27 @@ public class NotifyAccepter extends Service {
             boolean cont = sp.getBoolean("CHKACCEPT", false);
             while (sock != null &&  cont) {
                 try {
+                    System.out.println("startservice11");
                     BluetoothSocket socket = sock.accept();
+                    System.out.println("startservice12:" + socket.getRemoteDevice().getAddress());
                     InputStream is = socket.getInputStream();
+                    System.out.println("startservice13");
                     InputStreamReader isr = new InputStreamReader(is);
+                    System.out.println("startservice14");
                     BufferedReader br = new BufferedReader(isr);
+                    System.out.println("startservice15");
                     String message = br.readLine();
+                    System.out.println("startservice16");
                     Toast.makeText(NotifyAccepter.this, message, Toast.LENGTH_LONG).show();
+                    System.out.println("startservice17");
                     br.close();
+                    System.out.println("startservice18");
                     isr.close();
+                    System.out.println("startservice19");
                     is.close();
+                    System.out.println("startservice20");
                     socket.close();
+                    System.out.println("startservice21");
 
                     cont = sp.getBoolean("CHKACCEPT", false);
                 } catch (IOException e) {
